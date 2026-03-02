@@ -8,7 +8,7 @@ export default function Logo() {
         alt="eth.ed"
         height={32}
         width={128}
-        className="h-8 mx-auto"
+        className="h-8 mx-auto brightness-0 invert"
         priority
       />
     </div>

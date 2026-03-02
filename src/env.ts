@@ -30,6 +30,9 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: z.string().optional(),
     GOOGLE_CLIENT_SECRET: z.string().optional(),
 
+    APPLE_CLIENT_ID: z.string().optional(),
+    APPLE_CLIENT_SECRET: z.string().optional(),
+
     RESEND_API_KEY: z.string().optional(),
 
     EMAIL_HOST: z.string().optional(),
