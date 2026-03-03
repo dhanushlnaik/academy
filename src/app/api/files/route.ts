@@ -2,9 +2,7 @@ import { pinata } from "@/lib/pinata-config";
 import { NextResponse } from "next/server";
 
 
-export const config = {
-  api: { bodyParser: false },
-};
+export const api = { bodyParser: false };
 
 export async function POST(request: Request) {
   try {

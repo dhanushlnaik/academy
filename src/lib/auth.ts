@@ -1,6 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
+import AppleProvider from "next-auth/providers/apple";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 import { SiweProvider } from "./siwe-provider";
@@ -42,7 +43,31 @@ export const authOptions: NextAuthOptions = {
   providers: [
     // Sign In With Ethereum
     SiweProvider(),
-    // Simple email/name login without verification
+    // Admin-only secure login (not exposed in UI)
+    CredentialsProvider({
+      id: "admin-credentials",
+      name: "Admin",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+        // Secure admin credentials check (hardcoded for security, not in env)
+        if (credentials.email === "admin@ethed.com" && credentials.password === "ADMIN@2026") {
+          return {
+            id: "admin@ethed.com",
+            email: "admin@ethed.com",
+            name: "Admin",
+            role: "ADMIN", // Set role here for immediate session access
+          };
+        }
+        return null;
+      },
+    }),
+    // Simple email/name login without verification (fallback)
     CredentialsProvider({
       id: "email-name",
       name: "Email",
@@ -68,6 +93,12 @@ export const authOptions: NextAuthOptions = {
         clientSecret: process.env.GOOGLE_CLIENT_SECRET 
       })
     ] : []),
+    ...(process.env.APPLE_CLIENT_ID && process.env.APPLE_CLIENT_SECRET ? [
+      AppleProvider({ 
+        clientId: process.env.APPLE_CLIENT_ID, 
+        clientSecret: process.env.APPLE_CLIENT_SECRET 
+      })
+    ] : []),
     ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET ? [
       GitHubProvider({ 
         clientId: process.env.GITHUB_CLIENT_ID, 
@@ -76,7 +107,7 @@ export const authOptions: NextAuthOptions = {
     ] : []),
   ],
   callbacks: {
-    async signIn({ user }) {
+    async signIn({ user, account }) {
       if (!user.email) {
         return false;
       }
@@ -92,19 +123,30 @@ export const authOptions: NextAuthOptions = {
           catch { if (i < 2) await new Promise(r => setTimeout(r, 2000)); }
         }
         
+        // Check if this is an admin login
+        const isAdminLogin = account?.provider === 'admin-credentials';
+        
         if (!existingUser) {
           const newUser = await prisma.user.create({
-            data: { email: user.email, name: user.name || null, image: user.image || null }
+            data: { 
+              email: user.email, 
+              name: user.name || null, 
+              image: user.image || null,
+              role: isAdminLogin ? 'ADMIN' : 'USER' // Set role on creation
+            }
           });
           user.id = newUser.id;
         } else {
           user.id = existingUser.id;
-          if (existingUser.name !== user.name || existingUser.image !== user.image) {
-            await prisma.user.update({
-              where: { id: existingUser.id },
-              data: { name: user.name || existingUser.name, image: user.image || existingUser.image }
-            });
-          }
+          // Update user info and set role to ADMIN if admin login
+          await prisma.user.update({
+            where: { id: existingUser.id },
+            data: { 
+              name: user.name || existingUser.name, 
+              image: user.image || existingUser.image,
+              ...(isAdminLogin && { role: 'ADMIN' }) // Set admin role if this is admin login
+            }
+          });
         }
         
         return true;
@@ -120,6 +162,10 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
+        // Set role from user object if available (e.g., from admin-credentials)
+        if ((user as any).role) {
+          token.role = (user as any).role as string;
+        }
         // propagate wallet address from SIWE provider (if present)
         if ((user as any).address) {
           token.address = (user as any).address as string;

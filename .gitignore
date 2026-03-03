@@ -23,6 +23,8 @@
 # misc
 .DS_Store
 *.pem
+*.p8
+# Apple private key for Sign-in with Apple (store outside git)
 
 # debug
 npm-debug.log*

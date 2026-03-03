@@ -3,10 +3,10 @@ import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
 /**
- * Security middleware for the EthEd platform
+ * Security proxy for the EthEd platform
  * Adds security headers and handles route protection
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // -------------------------------------------------------------------------
