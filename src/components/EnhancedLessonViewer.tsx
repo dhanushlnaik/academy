@@ -248,7 +248,7 @@ export default function EnhancedLessonViewer({
     // Sync final progress to the backend before minting
     if (!session?.address) {
       // let user know that without a connected wallet the NFT will be off-chain
-      toast.warn(
+      toast.warning(
         "No wallet connected — NFT will be recorded off-chain.",
         { description: "Connect a wallet if you want the certificate minted on Polygon." }
       );
