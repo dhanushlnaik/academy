@@ -22,6 +22,7 @@ import {
   isOnChainEnabled,
 } from "@/lib/viem-client";
 import { encodeFunctionData } from "viem";
+import { polygonAmoy } from "viem/chains";
 import { logger } from "@/lib/monitoring";
 import fs from "fs";
 import path from "path";
@@ -298,8 +299,11 @@ export async function mintOnChain(
 
     logger.info(`Built transaction`, "nft-service", { nonce, gasPrice: gasPrice.toString(), gas: (gasEstimate + BigInt(10000)).toString() });
 
-    // Sign the transaction
-    const serialized = await walletClient.signTransaction(tx);
+    // Sign the transaction (specify chain explicitly for type safety)
+    const serialized = await walletClient.signTransaction({
+      ...tx,
+      chain: polygonAmoy,
+    });
 
     // Send the raw transaction
     const txHash = await publicClient.sendRawTransaction({
