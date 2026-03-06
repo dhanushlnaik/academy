@@ -146,7 +146,7 @@ export function SiweLoginButton() {
       const message = new SiweMessage({
         domain: window.location.host,
         address: address,
-        statement: "Sign in with Ethereum to eth.ed",
+        statement: "Sign in with Ethereum to EIPsInsight Academy",
         uri: window.location.origin,
         version: "1",
         chainId: chainId,

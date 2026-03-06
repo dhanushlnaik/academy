@@ -148,7 +148,7 @@ export default function CourseCreationForm({
         <CardDescription>
           {courseId
             ? "Update course details and settings"
-            : "Add a new course to eth.ed"}
+            : "Add a new course to EIPsInsight Academy"}
         </CardDescription>
       </CardHeader>
 

@@ -20,7 +20,8 @@ import {
   Users,
   Trophy,
   Clock,
-  Target
+  Target,
+  Lock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import EnhancedLessonViewer from './EnhancedLessonViewer';
@@ -113,6 +114,13 @@ export default function CourseModulePage({
     onProgress?.(progressPercentage);
   }, [progressPercentage, onProgress]);
 
+  // Scroll to top whenever a new lesson is selected
+  useEffect(() => {
+    if (selectedLesson) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [selectedLesson]);
+
   const handleLessonComplete = (lessonId: string) => {
     const newCompleted = [...new Set([...completedLessons, lessonId])];
     setCompletedLessons(newCompleted);
@@ -121,6 +129,7 @@ export default function CourseModulePage({
     fetch('/api/user/course/progress', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({
         courseSlug: courseId,
         completedCount: newCompleted.length,
@@ -272,23 +281,37 @@ export default function CourseModulePage({
                     completedLessons.includes(l.id)
                   ).length / module.lessons.length * 100;
 
+                  // Module is unlocked if it's the first one, or all lessons
+                  // in the preceding module are completed
+                  const isModuleUnlocked = index === 0 ||
+                    modules[index - 1].lessons.every(l => completedLessons.includes(l.id));
+
                   return (
                     <motion.button
                       key={module.id}
                       onClick={() => {
-                        setSelectedModule(module);
-                        setSelectedLesson(null);
+                        if (isModuleUnlocked) {
+                          setSelectedModule(module);
+                          setSelectedLesson(null);
+                        } else {
+                          import('sonner').then(({ toast }) =>
+                            toast.error('Complete the previous module first!')
+                          );
+                        }
                       }}
-                      whileHover={{ x: 4 }}
+                      whileHover={{ x: isModuleUnlocked ? 4 : 0 }}
                       className={`w-full p-3 rounded-lg text-left transition-all border ${
-                        selectedModule.id === module.id
-                          ? 'bg-cyan-600/20 border-cyan-400/50'
-                          : 'bg-slate-800/30 border-slate-700 hover:border-slate-600'
+                        !isModuleUnlocked
+                          ? 'bg-slate-800/20 border-slate-800 opacity-50 cursor-not-allowed'
+                          : selectedModule.id === module.id
+                            ? 'bg-cyan-600/20 border-cyan-400/50'
+                            : 'bg-slate-800/30 border-slate-700 hover:border-slate-600'
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-1">
+                        {!isModuleUnlocked && <Lock className="h-4 w-4 text-slate-500 flex-shrink-0" />}
                         <span className="text-lg">{module.icon || '📚'}</span>
-                        <h3 className="font-medium text-white text-sm truncate">
+                        <h3 className={`font-medium text-sm truncate ${isModuleUnlocked ? 'text-white' : 'text-slate-500'}`}>
                           {module.title}
                         </h3>
                       </div>
@@ -357,6 +380,12 @@ export default function CourseModulePage({
               <AnimatePresence>
                 {selectedModule.lessons.map((lesson, index) => {
                   const isCompleted = completedLessons.includes(lesson.id);
+                  // A lesson is unlocked if it's the first in the module,
+                  // or all preceding lessons in this module are completed
+                  const isUnlocked = index === 0 ||
+                    selectedModule.lessons
+                      .slice(0, index)
+                      .every(prev => completedLessons.includes(prev.id));
 
                   return (
                     <motion.div
@@ -367,11 +396,22 @@ export default function CourseModulePage({
                       transition={{ delay: index * 0.05 }}
                     >
                       <Card
-                        onClick={() => setSelectedLesson(lesson)}
-                        className={`cursor-pointer transition-all border ${
-                          isCompleted
-                            ? 'bg-slate-900/60 border-emerald-400/30 hover:border-emerald-400/50'
-                            : 'bg-slate-900/60 border-slate-700 hover:border-cyan-400/50'
+                        onClick={() => {
+                          if (isUnlocked) {
+                            setSelectedLesson(lesson);
+                          } else {
+                            // Optionally show a toast or do nothing
+                            import('sonner').then(({ toast }) =>
+                              toast.error('Complete the previous lessons first!')
+                            );
+                          }
+                        }}
+                        className={`transition-all border ${
+                          !isUnlocked
+                            ? 'bg-slate-900/30 border-slate-800 opacity-60 cursor-not-allowed'
+                            : isCompleted
+                              ? 'bg-slate-900/60 border-emerald-400/30 hover:border-emerald-400/50 cursor-pointer'
+                              : 'bg-slate-900/60 border-slate-700 hover:border-cyan-400/50 cursor-pointer'
                         }`}
                       >
                         <CardContent className="p-4">
@@ -380,6 +420,9 @@ export default function CourseModulePage({
                               <div className="flex items-center gap-2 mb-2">
                                 {isCompleted && (
                                   <span className="text-emerald-400">✓</span>
+                                )}
+                                {!isUnlocked && !isCompleted && (
+                                  <Lock className="h-4 w-4 text-slate-500" />
                                 )}
                                 <span className="text-lg">
                                   {lesson.type === 'reading' && '📖'}
@@ -390,6 +433,7 @@ export default function CourseModulePage({
                                   {lesson.type === 'discussion' && '💬'}
                                 </span>
                                 <h3 className={`font-semibold text-sm ${
+                                  !isUnlocked ? 'text-slate-500' :
                                   isCompleted ? 'text-slate-300 line-through' : 'text-white'
                                 }`}>
                                   Lesson {index + 1}: {lesson.title}
@@ -401,9 +445,12 @@ export default function CourseModulePage({
                             </div>
                             <motion.div
                               animate={{ x: 0 }}
-                              whileHover={{ x: 4 }}
+                              whileHover={{ x: isUnlocked ? 4 : 0 }}
                             >
-                              <ChevronRight className="h-5 w-5 text-slate-400" />
+                              {isUnlocked
+                                ? <ChevronRight className="h-5 w-5 text-slate-400" />
+                                : <Lock className="h-5 w-5 text-slate-600" />
+                              }
                             </motion.div>
                           </div>
                         </CardContent>

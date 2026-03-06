@@ -54,7 +54,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold text-white">5. Contact Us</h2>
             <p>
-              If you have any questions about this Privacy Policy, please contact us at privacy@ethed.app.
+              If you have any questions about this Privacy Policy, please contact us at privacy@eipsinsight.com.
             </p>
           </section>
         </CardContent>

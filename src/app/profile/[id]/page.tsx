@@ -32,8 +32,8 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
 
   if (!user) return {};
 
-  const title = `${user.name || 'User'}'s Portfolio | EthEd`;
-  const description = `Check out ${user.name || 'this user'}'s learning progress and Web3 achievements on EthEd.`;
+  const title = `${user.name || 'User'}'s Portfolio | EIPsInsight Academy`;
+  const description = `Check out ${user.name || 'this user'}'s learning progress and Web3 achievements at EIPsInsight Academy.`;
 
   return {
     title,

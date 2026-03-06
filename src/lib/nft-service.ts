@@ -6,7 +6,8 @@
 import { pinFile, pinJSON } from "./pinata-config";
 import { prisma } from "@/lib/prisma-client";
 import type { Prisma } from "@prisma/client";
-import { GENESIS_PIONEER_IMAGE_URI, GENESIS_PIONEER_METADATA_URI } from "@/lib/genesis-assets";
+import { GENESIS_PIONEER_METADATA_URI } from "@/lib/genesis-assets";
+import { generateCertificateSVG } from "@/lib/certificate-generator";
 import {
   getContractAddress,
   AMOY_CHAIN_ID,
@@ -17,8 +18,10 @@ import {
   getDeployerAddress,
   getPublicClient,
   getWalletClient,
+  getDeployerAccount,
   isOnChainEnabled,
 } from "@/lib/viem-client";
+import { encodeFunctionData } from "viem";
 import { logger } from "@/lib/monitoring";
 import fs from "fs";
 import path from "path";
@@ -127,8 +130,8 @@ export function generateGenesisScholarMetadata(
   ensName?: string
 ): NFTMetadata {
   return {
-    name: ensName ? `eth.ed Pioneer - ${ensName}` : "eth.ed Pioneer NFT",
-    description: `Commemorates ${ensName || 'a dedicated scholar'} being an early eth.ed pioneer and completing the onboarding journey.`,
+    name: ensName ? `EIPsInsight Academy Pioneer - ${ensName}` : "EIPsInsight Academy Pioneer NFT",
+    description: `Commemorates ${ensName || 'a dedicated scholar'} being an early EIPsInsight Academy pioneer and completing the onboarding journey.`,
     image: imageUri,
     attributes: [
       { trait_type: "Type", value: "Genesis Scholar" },
@@ -137,7 +140,7 @@ export function generateGenesisScholarMetadata(
       { trait_type: "Minted Date", value: new Date().toISOString().split("T")[0] },
       ...(ensName ? [{ trait_type: "ENS Name", value: ensName }] : []),
     ],
-    external_url: "https://ethed.app",
+    external_url: "https://academy.eipsinsight.com",
   };
 }
 
@@ -159,11 +162,17 @@ export async function mintNFTAndSave(
       throw new Error("User not found");
     }
 
-    // Generate metadata
-    const metadata = generateGenesisScholarMetadata(
-      GENESIS_PIONEER_IMAGE_URI,
-      ensName
-    );
+    // Generate a unique SVG Pioneer certificate for this recipient
+    const certSvg = generateCertificateSVG({
+      type: "pioneer",
+      recipientName: ensName || user.name || "Pioneer",
+      walletAddress: userAddress,
+      completionDate: new Date().toISOString(),
+    });
+    const imageUri = await uploadCertificateToIPFS(certSvg, `pioneer-${userId}-${Date.now()}.svg`);
+
+    // Generate metadata referencing the unique certificate image
+    const metadata = generateGenesisScholarMetadata(imageUri, ensName);
 
     // Upload metadata to IPFS
     const metadataUri = await uploadMetadataToIPFS(metadata);
@@ -181,14 +190,16 @@ export async function mintNFTAndSave(
     } else {
       // Off-chain record only (no wallet connected or on-chain disabled)
       tokenId = `off-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      txHash = null; // no real transaction
+      contractAddr = null;
     }
 
     // Save NFT record to database
     const nft = await prisma.nFT.create({
       data: {
         userId,
-        name: `eth.ed Genesis Pioneer - ${ensName || user.name || "Scholar"}`,
-        image: GENESIS_PIONEER_IMAGE_URI,
+        name: `EIPsInsight Academy Genesis Pioneer - ${ensName || user.name || "Scholar"}`,
+        image: imageUri,
         metadata: metadataUri,
         contractAddress: contractAddr,
         tokenId,
@@ -238,24 +249,60 @@ export async function mintOnChain(
     logger.warn("On-chain minting disabled (missing env vars) — using dev mock", "nft-service");
     await new Promise((resolve) => setTimeout(resolve, 500));
     const mockTokenId = `mock-${Date.now()}-${Math.random().toString(36).substring(7)}`;
-    const mockTxHash = `0x${"0".repeat(64)}`;
-    return { tokenId: mockTokenId, txHash: mockTxHash, contractAddress };
+    // Return empty txHash so callers know this wasn't a real on-chain mint
+    return { tokenId: mockTokenId, txHash: "", contractAddress };
   }
 
   const publicClient = getPublicClient();
   const walletClient = getWalletClient();
+  const deployerAccount = getDeployerAccount();
 
   logger.info(`Minting NFT to ${recipientAddress}`, "nft-service", { metadataUri });
 
   try {
-    // Send the mint transaction via the server relayer wallet
-    const txHash = await walletClient.writeContract({
-      address: contractAddress,
+    logger.info(`Using contract address: ${contractAddress}`, "nft-service");
+    logger.info(`Deployer address: ${deployerAccount.address}`, "nft-service");
+    
+    // Encode the contract call data
+    const encodedData = encodeFunctionData({
       abi: NFT_CONTRACT_ABI,
       functionName: "mint",
       args: [recipientAddress as `0x${string}`, metadataUri],
-      account: getDeployerAddress(),
-      chain: undefined,
+    });
+
+    // Get current nonce
+    const nonce = await publicClient.getTransactionCount({
+      address: deployerAccount.address,
+    });
+
+    // Estimate gas
+    const gasEstimate = await publicClient.estimateGas({
+      account: deployerAccount,
+      to: contractAddress,
+      data: encodedData,
+    });
+
+    // Get gas price
+    const gasPrice = await publicClient.getGasPrice();
+
+    // Build the transaction
+    const tx = {
+      to: contractAddress as `0x${string}`,
+      data: encodedData,
+      nonce,
+      gasPrice,
+      gas: gasEstimate + BigInt(10000), // Add small buffer
+      chainId: AMOY_CHAIN_ID,
+    };
+
+    logger.info(`Built transaction`, "nft-service", { nonce, gasPrice: gasPrice.toString(), gas: (gasEstimate + BigInt(10000)).toString() });
+
+    // Sign the transaction
+    const serialized = await walletClient.signTransaction(tx);
+
+    // Send the raw transaction
+    const txHash = await publicClient.sendRawTransaction({
+      serializedTransaction: serialized,
     });
 
     logger.info(`Mint tx sent: ${txHash}`, "nft-service");
@@ -298,11 +345,25 @@ export async function mintOnChain(
     logger.error(
       "On-chain mint failed",
       "nft-service",
-      { recipientAddress, metadataUri },
+      { recipientAddress, metadataUri, contractAddress, deployerAddress: deployerAccount.address },
       error
     );
+    
+    // Get more detailed error info
+    let errorMessage = "Unknown error";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      // If it's a Viem error with details, include them
+      if ((error as any).details) {
+        errorMessage += ` | Details: ${(error as any).details}`;
+      }
+      if ((error as any).code) {
+        errorMessage += ` | Code: ${(error as any).code}`;
+      }
+    }
+    
     throw new Error(
-      `On-chain mint failed: ${error instanceof Error ? error.message : "Unknown error"}`
+      `On-chain mint failed: ${errorMessage}`
     );
   }
 }
@@ -343,21 +404,18 @@ export async function saveNFTToDatabase(params: {
 export async function mintGenesisNFTs(params: MintNFTParams) {
   const { userId, ensName, userAddress } = params;
 
-  // Development-friendly fallback: if the genesis image is still the placeholder
-  // and Pinata is not configured, use a bundled local image so the UI works offline.
-  const placeholderCid = "ipfs://QmEthEdPioneer1" as string;
-  // Use the Learning Sprout image as the default for pioneers
-  const devLocalImage = "/nft-learning-sprout.png";
-  const genesisImageUri =
-    GENESIS_PIONEER_IMAGE_URI === placeholderCid && !env.PINATA_JWT
-      ? devLocalImage
-      : GENESIS_PIONEER_IMAGE_URI;
+  // Generate a unique SVG Pioneer certificate for this recipient
+  const pioneerSvgBuffer = generateCertificateSVG({
+    type: "pioneer",
+    recipientName: ensName || "Pioneer",
+    walletAddress: userAddress,
+    completionDate: new Date().toISOString(),
+  });
+  const pioneerFilename = `pioneer-${Date.now()}.svg`;
+  const genesisImageUri = await uploadCertificateToIPFS(pioneerSvgBuffer, pioneerFilename);
 
-  // Generate metadata
-  const genesisMetadata = generateGenesisScholarMetadata(
-    genesisImageUri,
-    ensName
-  );
+  // Generate metadata (reference unique SVG)
+  const genesisMetadata = generateGenesisScholarMetadata(genesisImageUri, ensName);
 
   const genesisMetadataUri = GENESIS_PIONEER_METADATA_URI
     ? GENESIS_PIONEER_METADATA_URI
@@ -372,25 +430,25 @@ export async function mintGenesisNFTs(params: MintNFTParams) {
     // Off-chain record only (no wallet connected or on-chain disabled)
     genesisResult = {
       tokenId: `off-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      txHash: `0x${"0".repeat(64)}`,
-      contractAddress: getContractAddress(AMOY_CHAIN_ID, "NFT_CONTRACT"),
+      txHash: "",
+      contractAddress: "",
     };
   }
 
-  // Save to database with on-chain data
+  // Save to database with on-chain data (null for off-chain mints)
   const genesisNFT = await saveNFTToDatabase({
     userId,
     tokenId: genesisResult.tokenId,
-    name: "eth.ed Pioneer NFT",
+    name: "EIPsInsight Academy Pioneer NFT",
     image: genesisImageUri,
     metadata: genesisMetadata,
-    contractAddress: genesisResult.contractAddress,
-    transactionHash: genesisResult.txHash,
+    contractAddress: genesisResult.contractAddress || undefined,
+    transactionHash: genesisResult.txHash || undefined,
     ownerAddress: userAddress || undefined,
     chainId: AMOY_CHAIN_ID,
   });
 
-  const explorerUrl = genesisResult.txHash && !genesisResult.txHash.startsWith("0x" + "0".repeat(64))
+  const explorerUrl = genesisResult.txHash && genesisResult.txHash.length > 2
     ? getExplorerTxUrl(AMOY_CHAIN_ID, genesisResult.txHash)
     : null;
 
@@ -408,34 +466,51 @@ export async function mintGenesisNFTs(params: MintNFTParams) {
 }
 
 /**
- * Upload course completion NFT image (Learning Sprout GIF) to IPFS
+ * Upload a generated SVG certificate Buffer to IPFS via Pinata.
+ *
+ * Falls back to a local file path in development when Pinata is not configured,
+ * exactly like the existing metadata upload path.
  */
-export async function uploadCourseSproutToIPFS(): Promise<string> {
-  try {
-    // Read the sprout GIF from public folder
-    const sproutPath = path.join(process.cwd(), "public", "nft-learning-sprout.gif");
-    const imageBuffer = fs.readFileSync(sproutPath);
-
-    // If Pinata not configured, return OG PNG (we don't need the course GIFs right now)
-    if (!env.PINATA_JWT) {
-      logger.warn("Pinata JWT not configured — using OG PNG at /og-image.png", "nft-service");
-      return "/og-image.png";
+export async function uploadCertificateToIPFS(
+  svgBuffer: Buffer,
+  filename: string
+): Promise<string> {
+  if (!env.PINATA_JWT) {
+    if (env.NODE_ENV === "production") {
+      throw new Error("Pinata not configured — PINATA_JWT is required in production");
     }
+    // Dev fallback: persist SVG alongside local metadata
+    try {
+      const outDir = path.join(process.cwd(), "public", "local-metadata");
+      if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+      const outPath = path.join(outDir, filename);
+      fs.writeFileSync(outPath, svgBuffer);
+      logger.warn(`Saved certificate SVG to /local-metadata/${filename} (Pinata not configured)`, "nft-service");
+      return `/local-metadata/${filename}`;
+    } catch {
+      throw new Error("Failed to write local certificate fallback");
+    }
+  }
 
-    // Convert to File for Pinata
-    const arrayBuffer = imageBuffer.buffer.slice(
-      imageBuffer.byteOffset,
-      imageBuffer.byteOffset + imageBuffer.byteLength
-    ) as ArrayBuffer;
-    const blob = new Blob([arrayBuffer], { type: "image/gif" });
-    const file = new File([blob], "learning-sprout.gif", { type: "image/gif" });
-    
+  try {
+    const file = new File([new Uint8Array(svgBuffer)], filename, { type: "image/svg+xml" });
     return await pinFile(file);
   } catch (error: unknown) {
-    // Fallback to OG PNG if IPFS fails in dev
     const msg = error instanceof Error ? error.message : String(error);
-    logger.warn(`uploadCourseSproutToIPFS failed, falling back to OG PNG: ${msg}`, "nft-service");
-    return "/og-image.png";
+    if (env.NODE_ENV !== "production") {
+      // Dev: fall back to local file
+      try {
+        const outDir = path.join(process.cwd(), "public", "local-metadata");
+        if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+        const outPath = path.join(outDir, filename);
+        fs.writeFileSync(outPath, svgBuffer);
+        logger.warn(`Pinata upload failed, saved certificate to /local-metadata/${filename}: ${msg}`, "nft-service");
+        return `/local-metadata/${filename}`;
+      } catch {
+        // fall through
+      }
+    }
+    throw new Error(`Failed to upload certificate to IPFS: ${msg}`);
   }
 }
 
@@ -446,25 +521,27 @@ export function generateCourseCompletionMetadata(
   imageUri: string,
   courseName: string,
   courseSlug: string,
-  recipientName?: string
+  recipientName?: string,
+  courseLevel?: string
 ): NFTMetadata {
+  const recipient = recipientName || "Scholar";
   return {
-    name: `${courseName}${recipientName ? ` - ${recipientName}` : ''} - Learning Sprout`,
-    description: `Commemorates the successful completion of ${courseName} on eth.ed by ${recipientName || 'a dedicated scholar'}. This Learning Sprout represents your growth and mastery in blockchain education.`,
+    name: `${courseName} — ${recipient}`,
+    description: `On-chain certificate of completion for ${courseName} on EIPsInsight Academy, awarded to ${recipient}. This unique certificate is generated specifically for this recipient and is permanently recorded on the blockchain.`,
     image: imageUri,
-    animation_url: imageUri, // GIF works as animation
-    courseSlug, // Used for UI linkage In Profile
-    courseName, // Used for UI linkage In Profile
+    courseSlug,
+    courseName,
     attributes: [
       { trait_type: "Type", value: "Course Completion" },
       { trait_type: "Course", value: courseName },
       { trait_type: "Course Slug", value: courseSlug },
-      { trait_type: "Recipient", value: recipientName || "Scholar" },
-      { trait_type: "Platform", value: "eth.ed" },
+      { trait_type: "Recipient", value: recipient },
+      { trait_type: "Platform", value: "EIPsInsight Academy" },
+      { trait_type: "Level", value: courseLevel || "Beginner" },
       { trait_type: "Completion Date", value: new Date().toISOString().split("T")[0] },
-      { trait_type: "NFT Design", value: "Learning Sprout" }
+      { trait_type: "Certificate Type", value: "Unique On-Chain SVG" },
     ],
-    external_url: `https://ethed.app/courses/${courseSlug}`,
+    external_url: `https://academy.eipsinsight.com/courses/${courseSlug}`,
   };
 }
 
@@ -477,14 +554,29 @@ export async function mintCourseCompletionNFT(params: {
   courseName: string;
   userAddress?: string;
   recipientName?: string;
+  courseLevel?: string;
 }) {
-  const { userId, courseSlug, courseName, userAddress, recipientName } = params;
+  const { userId, courseSlug, courseName, userAddress, recipientName, courseLevel } = params;
 
-  // Upload sprout GIF to IPFS
-  const imageUri = await uploadCourseSproutToIPFS();
+  // --- Generate a unique SVG certificate for this recipient ---
+  const certSvgBuffer = generateCertificateSVG({
+    type: "course-completion",
+    recipientName: recipientName || "Scholar",
+    walletAddress: userAddress,
+    courseName,
+    courseSlug,
+    completionDate: new Date().toISOString(),
+    courseLevel,
+  });
 
-  // Generate metadata
-  const metadata = generateCourseCompletionMetadata(imageUri, courseName, courseSlug, recipientName);
+  // Upload SVG certificate image to IPFS
+  const certFilename = `cert-${courseSlug}-${Date.now()}.svg`;
+  const imageUri = await uploadCertificateToIPFS(certSvgBuffer, certFilename);
+
+  // Generate metadata (now references the unique SVG image)
+  const metadata = generateCourseCompletionMetadata(
+    imageUri, courseName, courseSlug, recipientName, courseLevel
+  );
 
   // Upload metadata to IPFS
   const metadataUri = await uploadMetadataToIPFS(metadata);
@@ -495,36 +587,50 @@ export async function mintCourseCompletionNFT(params: {
   if (userAddress && isOnChainEnabled()) {
     mintResult = await mintOnChain(userAddress, metadataUri, "course-completion");
   } else {
-    // Off-chain record only (no wallet connected or on-chain disabled)
     mintResult = {
       tokenId: `off-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      txHash: `0x${"0".repeat(64)}`,
-      contractAddress: getContractAddress(AMOY_CHAIN_ID, "NFT_CONTRACT"),
+      txHash: "",
+      contractAddress: "",
     };
   }
 
-  // Save to database with on-chain data
+  // Update SVG with minted tokenId so the serial number is accurate
+  const finalCertBuffer = generateCertificateSVG({
+    type: "course-completion",
+    recipientName: recipientName || "Scholar",
+    walletAddress: userAddress,
+    courseName,
+    courseSlug,
+    completionDate: new Date().toISOString(),
+    courseLevel,
+    serialNumber: mintResult.tokenId,
+  });
+  const finalFilename = `cert-${courseSlug}-${mintResult.tokenId.slice(0, 12)}.svg`;
+  const finalImageUri = await uploadCertificateToIPFS(finalCertBuffer, finalFilename).catch(() => imageUri);
+
+  // Save to database (null for off-chain mints so dashboard won't show invalid explorer links)
   const nft = await saveNFTToDatabase({
     userId,
     tokenId: mintResult.tokenId,
-    name: `${courseName}${recipientName ? ` - ${recipientName}` : ''} - Learning Sprout`,
-    image: imageUri,
-    metadata,
-    contractAddress: mintResult.contractAddress,
-    transactionHash: mintResult.txHash,
+    name: `${courseName} — ${recipientName || "Scholar"}`,
+    image: finalImageUri,
+    metadata: { ...metadata, image: finalImageUri },
+    contractAddress: mintResult.contractAddress || undefined,
+    transactionHash: mintResult.txHash || undefined,
     ownerAddress: userAddress || undefined,
     chainId: AMOY_CHAIN_ID,
   });
 
-  const explorerUrl = mintResult.txHash && !mintResult.txHash.startsWith("0x" + "0".repeat(64))
-    ? getExplorerTxUrl(AMOY_CHAIN_ID, mintResult.txHash)
-    : null;
+  const explorerUrl =
+    mintResult.txHash && mintResult.txHash.length > 2
+      ? getExplorerTxUrl(AMOY_CHAIN_ID, mintResult.txHash)
+      : null;
 
   return {
     nft,
-    transaction: { 
-      type: "course-completion", 
-      txHash: mintResult.txHash, 
+    transaction: {
+      type: "course-completion",
+      txHash: mintResult.txHash,
       tokenId: mintResult.tokenId,
       courseSlug,
       courseName,
@@ -626,7 +732,7 @@ export async function syncUserNFTs(userId: string) {
               data: {
                 userId,
                 tokenId,
-                name: metadata.name || `EthEd Certificate #${tokenId}`,
+                name: metadata.name || `EIPsInsight Academy Certificate #${tokenId}`,
                 image: metadata.image || "",
                 metadata: metadata as unknown as Prisma.InputJsonValue,
                 contractAddress,

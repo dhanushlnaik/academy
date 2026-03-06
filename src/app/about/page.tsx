@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 export const metadata: Metadata = {
-  title: 'About | EthEd',
-  description: 'EthEd is a Web3 education platform making blockchain learning accessible, interactive, and rewarding.',
+  title: 'About | EIPsInsight Academy',
+  description: 'EIPsInsight Academy is a Web3 education platform making blockchain learning accessible, interactive, and rewarding.',
   openGraph: {
-    title: 'About EthEd',
+    title: 'About EIPsInsight Academy',
     description: 'Making blockchain learning accessible, interactive, and rewarding.',
   },
 };
@@ -49,9 +49,9 @@ const AboutPage = () => {
         </div>
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:mx-0">
-            <h2 className="text-4xl font-bold tracking-tight text-white sm:text-6xl">About EthEd</h2>
+            <h2 className="text-4xl font-bold tracking-tight text-white sm:text-6xl">About EIPsInsight Academy</h2>
             <p className="mt-6 text-lg leading-8 text-slate-300">
-              EthEd is a decentralized learning platform designed to empower the next generation of blockchain developers and enthusiasts. We believe education should be accessible, verifiable, and rewarding.
+              EIPsInsight Academy is a decentralized learning platform designed to empower the next generation of blockchain developers and enthusiasts. We believe education should be accessible, verifiable, and rewarding.
             </p>
           </div>
           <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-6 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-4 lg:gap-8">
@@ -69,7 +69,7 @@ const AboutPage = () => {
               <div className="text-base leading-7">
                 <h3 className="font-semibold text-white">Community Owned</h3>
                 <p className="mt-2 text-slate-400">
-                  EthEd is built on decentralized principles. Your data, your identity, and your learning path are controlled by you.
+                  EIPsInsight Academy is built on decentralized principles. Your data, your identity, and your learning path are controlled by you.
                 </p>
               </div>
             </div>

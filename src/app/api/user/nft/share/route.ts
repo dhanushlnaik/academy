@@ -50,11 +50,11 @@ export async function POST(request: Request) {
       description:
         nft.metadata && typeof nft.metadata === "object" && "description" in nft.metadata
           ? (nft.metadata as Record<string, unknown>).description
-          : `${nft.name} – earned on EthEd`,
+          : `${nft.name} – earned at EIPsInsight Academy`,
       image: nft.image,
       tokenId: nft.tokenId,
       owner: session.user.id,
-      platform: "EthEd",
+      platform: "EIPsInsight Academy",
       sharedAt: new Date().toISOString(),
       originalMetadata: nft.metadata,
     };

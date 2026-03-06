@@ -341,22 +341,39 @@ export default function ProfilePortfolio({ handle }: Props) {
                         <Badge variant="outline" className="text-slate-300 border-slate-400/30">NFT</Badge>
                       </div>
                       <p className="text-sm text-slate-400 line-clamp-2">{nft.description || (nft.metadata?.description ?? '')}</p>
-                      <div className="flex items-center justify-between text-xs text-slate-500">
-                        <span>Minted: {nft.createdAt ? new Date(nft.createdAt).toLocaleDateString() : ''}</span>
-                        {nft.explorerUrl || nft.transactionHash ? (
-                          <a
-                            href={nft.explorerUrl || `https://amoy.polygonscan.com/tx/${nft.transactionHash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                      <div className="flex gap-2 mt-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 border-slate-400/30 hover:border-cyan-400/50 text-slate-300 hover:text-cyan-300 h-8 text-xs"
+                          onClick={() => {
+                            navigator.clipboard.writeText(`${window.location.origin}/nft/${nft.id}`);
+                            toast.success("NFT link copied to clipboard!");
+                          }}
+                        >
+                          <Copy className="w-3 h-3 mr-1" />
+                          Share
+                        </Button>
+                        {(nft.explorerUrl || (nft.transactionHash && nft.transactionHash.length > 2 && !/^0x0+$/.test(nft.transactionHash))) && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 border-slate-400/30 hover:border-emerald-400/50 text-slate-300 hover:text-emerald-300 h-8 text-xs"
+                            asChild
                           >
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        ) : (
-                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                            <ExternalLink className="w-3 h-3" />
+                            <a
+                              href={nft.explorerUrl || `https://amoy.polygonscan.com/tx/${nft.transactionHash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <ExternalLink className="w-3 h-3 mr-1" />
+                              Verify
+                            </a>
                           </Button>
                         )}
+                      </div>
+                      <div className="flex items-center justify-between text-xs text-slate-500 mt-2">
+                        <span>Minted: {nft.createdAt ? new Date(nft.createdAt).toLocaleDateString() : ''}</span>
                       </div>
                     </div>
                   </CardContent>

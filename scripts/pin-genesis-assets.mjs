@@ -74,7 +74,7 @@ async function main() {
       { trait_type: "Edition", value: "Pioneer" },
       { trait_type: "Rarity", value: "Founder" },
     ],
-    external_url: "https://ethed.app",
+    external_url: "https://academy.eipsinsight.com",
   };
 
   console.log("Uploading Genesis metadata template");

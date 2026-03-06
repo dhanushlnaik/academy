@@ -14,42 +14,42 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-white">1. Acceptance of Terms</h2>
             <p>
-              By accessing or using EthEd, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using this site.
+              By accessing or using EIPsInsight Academy, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using this site.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-white">2. Use License</h2>
             <p>
-              Permission is granted to temporarily use the materials on EthEd for personal, non-commercial transitory learning purposes only.
+              Permission is granted to temporarily use the materials on EIPsInsight Academy for personal, non-commercial transitory learning purposes only.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-white">3. Blockchain Interactions</h2>
             <p>
-              EthEd facilitates interactions with the Polygon blockchain. You are responsible for any gas fees associated with on-chain transactions unless stated otherwise. We are not responsible for any losses resulting from blockchain network issues or wallet misconfigurations.
+              EIPsInsight Academy facilitates interactions with the Polygon blockchain. You are responsible for any gas fees associated with on-chain transactions unless stated otherwise. We are not responsible for any losses resulting from blockchain network issues or wallet misconfigurations.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-white">4. NFTs and Digital Assets</h2>
             <p>
-              NFTs earned on EthEd are for educational recognition and personal collection. They do not represent financial investments or equity in EthEd.
+              NFTs earned on EIPsInsight Academy are for educational recognition and personal collection. They do not represent financial investments or equity in EIPsInsight Academy.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-white">5. Disclaimer</h2>
             <p>
-              The materials on EthEd are provided on an 'as is' basis. We make no warranties, expressed or implied, and hereby disclaim all other warranties including, without limitation, implied warranties or conditions of merchantability or fitness for a particular purpose.
+              The materials on EIPsInsight Academy are provided on an 'as is' basis. We make no warranties, expressed or implied, and hereby disclaim all other warranties including, without limitation, implied warranties or conditions of merchantability or fitness for a particular purpose.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-white">6. Governing Law</h2>
             <p>
-              These terms and conditions are governed by and construed in accordance with the laws of the jurisdiction in which EthEd operates.
+              These terms and conditions are governed by and construed in accordance with the laws of the jurisdiction in which EIPsInsight Academy operates.
             </p>
           </section>
         </CardContent>

@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Leaderboard | EthEd",
+  title: "Leaderboard | EIPsInsight Academy",
   description:
-    "See the top Web3 learners on EthEd. Earn XP by completing courses and climb the ranks.",
+    "See the top Web3 learners on EIPsInsight Academy. Earn XP by completing courses and climb the ranks.",
   openGraph: {
-    title: "Leaderboard | EthEd",
+    title: "Leaderboard | EIPsInsight Academy",
     description:
-      "See the top Web3 learners on EthEd. Earn XP and climb the ranks.",
+      "See the top Web3 learners on EIPsInsight Academy. Earn XP and climb the ranks.",
   },
 };
 

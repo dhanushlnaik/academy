@@ -85,11 +85,11 @@ export async function GET(
                 fontWeight: 'bold',
               }}
             >
-              EthEd Pioneer
+              EIPsInsight Academy Pioneer
             </div>
           </div>
           <div style={{ position: 'absolute', bottom: '40px', fontSize: '24px', opacity: 0.5 }}>
-            ethed.app
+            academy.eipsinsight.com
           </div>
         </div>
       ),

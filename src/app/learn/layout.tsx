@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Learn | EthEd",
+  title: "Learn | EIPsInsight Academy",
   description:
-    "Explore Web3 courses on blockchain, Solidity, DeFi, NFTs, and more. Learn at your own pace with hands-on projects.",
+    "Explore Web3 courses on blockchain, Solidity, DeFi, NFTs, and more. Learn at your own pace with hands-on projects provided by EIPsInsight Academy.",
   openGraph: {
-    title: "Learn Web3 & Blockchain | EthEd",
+    title: "Learn Web3 & Blockchain | EIPsInsight Academy",
     description:
       "Explore Web3 courses on blockchain, Solidity, DeFi, NFTs, and more.",
   },

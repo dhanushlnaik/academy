@@ -34,7 +34,7 @@ function getRpcUrl(): string {
   return url;
 }
 
-function getDeployerAccount(): Account {
+export function getDeployerAccount(): Account {
   const key = process.env.DEPLOYER_PRIVATE_KEY;
   if (!key) {
     throw new Error(

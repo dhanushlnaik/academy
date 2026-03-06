@@ -15,7 +15,7 @@ export async function sendCourseCompletionEmail({
   courseSlug,
   xpAwarded,
 }: CourseCompletionEmailProps) {
-  const siteUrl = process.env.NEXTAUTH_URL ?? "https://ethed.xyz";
+  const siteUrl = process.env.NEXTAUTH_URL ?? "https://academy.eipsinsight.com";
   const dashboardUrl = `${siteUrl}/dashboard`;
   const learnUrl = `${siteUrl}/learn/${courseSlug}`;
 
@@ -90,7 +90,7 @@ export async function sendCourseCompletionEmail({
             <td style="border-top:1px solid rgba(255,255,255,0.06);padding:20px 40px;text-align:center;">
               <p style="margin:0;color:#475569;font-size:12px;">
                 You&rsquo;re receiving this because you completed a course on
-                <a href="${siteUrl}" style="color:#0891b2;text-decoration:none;"> EthEd</a>.
+                <a href="${siteUrl}" style="color:#0891b2;text-decoration:none;"> EIPsInsight Academy</a>.
               </p>
             </td>
           </tr>
@@ -101,7 +101,7 @@ export async function sendCourseCompletionEmail({
 </body>
 </html>`;
 
-  const text = `Hi ${userName},\n\nCongratulations! You completed "${courseName}" and earned +${xpAwarded} XP.\n\nClaim your NFT badge and keep learning:\n${dashboardUrl}\n\n— The EthEd Team`;
+  const text = `Hi ${userName},\n\nCongratulations! You completed "${courseName}" and earned +${xpAwarded} XP.\n\nClaim your NFT badge and keep learning:\n${dashboardUrl}\n\n— The EIPsInsight Academy Team`;
 
   return sendMail({
     to,

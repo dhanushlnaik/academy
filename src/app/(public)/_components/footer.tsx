@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="space-y-4 col-span-1 md:col-span-2">
           <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-cyan-500 to-blue-500 dark:from-cyan-400 dark:to-blue-400 bg-clip-text text-transparent">
-            EthEd
+            EIPsInsight Academy
           </Link>
           <p className="text-muted-foreground max-w-sm">
             Blockchain education made interactive, verifiable, and rewarding. 
@@ -32,10 +32,10 @@ export default function Footer() {
             <Link href="/terms" className="text-muted-foreground hover:text-primary transition-colors">Terms of Service</Link>
             <Link href="/donate" className="text-muted-foreground hover:text-emerald-500 transition-colors">Donate</Link>
             <div className="flex space-x-4 pt-2">
-              <Link href="https://github.com/ethed" target="_blank" rel="noopener noreferrer" aria-label="EthEd on GitHub" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="https://github.com/eipsinsight" target="_blank" rel="noopener noreferrer" aria-label="EIPsInsight Academy on GitHub" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Github className="h-5 w-5" />
               </Link>
-              <Link href="https://twitter.com/ethed" target="_blank" rel="noopener noreferrer" aria-label="EthEd on Twitter" className="text-muted-foreground hover:text-primary transition-colors">
+              <Link href="https://twitter.com/eipsinsight" target="_blank" rel="noopener noreferrer" aria-label="EIPsInsight Academy on Twitter" className="text-muted-foreground hover:text-primary transition-colors">
                 <Twitter className="h-5 w-5" />
               </Link>
             </div>
@@ -43,7 +43,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="container mx-auto mt-12 pt-8 border-t border-border/50 text-center text-muted-foreground text-sm">
-        © {new Date().getFullYear()} EthEd. Built for the decentralized future.
+        © {new Date().getFullYear()} EIPsInsight Academy. Built for the decentralized future.
       </div>
     </footer>
   );

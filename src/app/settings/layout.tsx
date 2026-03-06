@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Settings | EthEd",
-  description: "Manage your EthEd account settings, notifications, and preferences.",
+  title: "Settings | EIPsInsight Academy",
+  description: "Manage your EIPsInsight Academy account settings, notifications, and preferences.",
   robots: { index: false, follow: false },
 };
 

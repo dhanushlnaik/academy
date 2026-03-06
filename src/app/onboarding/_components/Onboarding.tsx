@@ -120,7 +120,7 @@ export default function Onboarding() {
     if (name.startsWith('-') || name.endsWith('-')) return { valid: false, message: "Cannot start or end with hyphen" };
     if (name.includes('--')) return { valid: false, message: "Cannot contain consecutive hyphens" };
     
-    const reserved = ['admin', 'api', 'www', 'mail', 'ftp', 'localhost', 'ethed', 'test'];
+    const reserved = ['admin', 'api', 'www', 'mail', 'ftp', 'localhost', 'eipsinsight', 'test'];
     if (reserved.includes(name)) return { valid: false, message: "This name is reserved" };
     
     return { valid: true, message: "Valid ENS name" };

@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       price: "Free" as const,
       category: "Web3",
       tags: [LEVEL_MAP[c.level] ?? "Beginner", "Web3", "Blockchain"],
-      instructor: "EthEd Team",
+      instructor: "EIPsInsight Academy Team",
       thumbnail: "",
       isNew: (Date.now() - new Date(c.createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000,
       isPopular: c._count.users > 50,

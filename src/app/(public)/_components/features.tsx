@@ -75,7 +75,7 @@ const iconPulse = {
   hover: { scale: 1.12, filter: 'drop-shadow(0 0 16px #22d3ee)', transition: { yoyo: 2, duration: 0.35 } },
 };
 
-export default function EthEdFeatures() {
+export default function EIPsFeatures() {
   return (
     <section className="relative py-14">
       <div className="mx-auto max-w-screen-xl px-4 md:px-8">
@@ -91,7 +91,7 @@ export default function EthEdFeatures() {
               Built for <span className="bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent">Web3 Learners</span>
             </h3>
             <p className="font-geist text-slate-400 mt-3 text-lg">
-              EthEd combines on-chain rewards, AI support, and ENS identity to help everyone master blockchain—securely and transparently.
+              EIPsInsight Academy combines on-chain rewards, AI support, and ENS identity to help everyone master blockchain—securely and transparently.
             </p>
           </motion.div>
           <div
