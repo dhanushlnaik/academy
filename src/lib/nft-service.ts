@@ -287,6 +287,7 @@ export async function mintOnChain(
 
     // Build the transaction
     const tx = {
+      account: deployerAccount,
       to: contractAddress as `0x${string}`,
       data: encodedData,
       nonce,
