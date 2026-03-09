@@ -1,15 +1,15 @@
-# EthEd Frontend
+# EIPsInsight Academy Frontend
 
 **Blockchain education made interactive, verifiable, and rewarding.** 
 
-EthEd transforms Web3 learning with NFT achievements, AI tutoring, and gamified progress tracking.
+EIPsInsight Academy transforms Web3 learning with NFT achievements, AI tutoring, and gamified progress tracking.
 
 ## 🚀 What We've Built
 
 ### Interactive Experience
 - **Global Grid System**: Full-viewport canvas with mouse-tracking glow effects inspired by Linear/Stripe/Vercel
 - **Smart Content Detection**: Grid brightness adapts automatically over text for perfect readability
-- **EthEd Agent**: Bottom-right hover assistant with smooth animation cycles (p1→pause→p3→pause2)
+- **EIPsInsight Agent**: Bottom-right hover assistant with smooth animation cycles (p1→pause→p3→pause2)
 - **Dialog Persistence**: Agent dialog stays open when clicking inside, closes when clicking outside
 
 ### Authentication & Infrastructure  
@@ -34,8 +34,8 @@ EthEd transforms Web3 learning with NFT achievements, AI tutoring, and gamified 
 
 1. **Clone and install**
    ```bash
-   git clone https://github.com/AyuShetty/ethed-frontend.git
-   cd ethed-frontend
+   git clone https://github.com/AyuShetty/eipsinsight-academy-frontend.git
+   cd eipsinsight-academy-frontend
    pnpm install
    ```
 

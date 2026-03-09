@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ShieldOff } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Access Forbidden | EthEd',
+  title: 'Access Forbidden | EIPsInsight Academy',
   robots: { index: false, follow: false },
 };
 

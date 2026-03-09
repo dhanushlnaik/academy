@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       `. Payment ID: ${nonce}`;
 
     // Build a proper SIWE message
-    const origin = request.headers.get("origin") || "https://ethed.app";
+    const origin = request.headers.get("origin") || "https://academy.eipsinsight.com";
     const domain = new URL(origin).host;
 
     const siweMessage = new SiweMessage({

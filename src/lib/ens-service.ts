@@ -106,7 +106,7 @@ export function validateSubdomain(subdomain: string): {
     "mail",
     "ftp",
     "localhost",
-    "ethed",
+    "eipsinsight",
     "test",
     "root",
     "system",

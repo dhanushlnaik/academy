@@ -10,7 +10,27 @@ export async function POST(request: NextRequest) {
     if (errorResponse) return errorResponse;
 
     const body = await request.json();
-    const { courseSlug, courseName, userAddress } = body;
+    const { courseSlug, courseName, userAddress: providedAddress } = body;
+
+    // derive wallet address if not provided
+    let userAddress: string | undefined = providedAddress;
+    if (!userAddress) {
+      const userWithWallets = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        include: { wallets: true },
+      });
+      if (userWithWallets && userWithWallets.wallets.length > 0) {
+        userAddress =
+          userWithWallets.wallets.find((w) => w.isPrimary)?.address ||
+          userWithWallets.wallets[0]?.address ||
+          undefined;
+      }
+    }
+
+    if (!userAddress) {
+      // no wallet available - cannot mint on chain
+      logger.warn(`No wallet address available for user ${session.user.id}`, "api/nft/mint");
+    }
 
     if (!courseSlug || !courseName) {
       return NextResponse.json(
@@ -55,7 +75,7 @@ export async function POST(request: NextRequest) {
       userId: session.user.id,
       courseSlug,
       courseName,
-      userAddress,
+      userAddress, // may be undefined, mintCourseCompletionNFT handles off-chain fallback
       recipientName: session.user.name || undefined
     });
 

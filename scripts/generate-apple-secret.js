@@ -4,7 +4,7 @@ const path = require('path');
 
 // Configuration - Replace these with your actual values
 const TEAM_ID = '2R2CQNX632'; // Found in Apple Developer account membership
-const CLIENT_ID = 'com.ethed.webapp.signin'; 
+const CLIENT_ID = 'com.eipsinsight.webapp.signin'; 
 const KEY_ID = 'M7N46GNRXN'; 
 const PRIVATE_KEY_FILE = 'AuthKey_M7N46GNRXN.p8'; 
 
@@ -28,7 +28,7 @@ try {
     console.error('❌ Error: Please update the configuration in this script!');
     console.error('\nYou need to replace:');
     console.error('- TEAM_ID: Your Apple Team ID');
-    console.error('- CLIENT_ID: Your Services ID (e.g., com.ethed.webapp.signin)');
+    console.error('- CLIENT_ID: Your Services ID (e.g., com.eipsinsight.webapp.signin)');
     console.error('- KEY_ID: Your Sign In with Apple Key ID');
     console.error('- PRIVATE_KEY_FILE: Name of your .p8 file');
     process.exit(1);

@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma-client";
 import aj, { slidingWindow } from "@/lib/arcjet";
 import { AMOY_CHAIN_ID } from "@/lib/contracts";
+import { logger } from "@/lib/monitoring";
 
 // Rate limiting for wallet connections
 const walletRateLimit = aj.withRule(
@@ -35,7 +36,8 @@ export async function GET() {
 
     return NextResponse.json({ wallets });
 
-  } catch {
+  } catch (err) {
+    logger.error("GET /api/user/wallets failed", "api/user/wallets", undefined, err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

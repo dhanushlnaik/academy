@@ -56,10 +56,10 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
         // Secure admin credentials check (hardcoded for security, not in env)
-        if (credentials.email === "admin@ethed.com" && credentials.password === "ADMIN@2026") {
+        if (credentials.email === "admin@eipsinsight.com" && credentials.password === "ADMIN@2026") {
           return {
-            id: "admin@ethed.com",
-            email: "admin@ethed.com",
+            id: "admin@eipsinsight.com",
+            email: "admin@eipsinsight.com",
             name: "Admin",
             role: "ADMIN", // Set role here for immediate session access
           };

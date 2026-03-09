@@ -182,7 +182,7 @@ export default function HowItWorksPage() {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="text-4xl md:text-5xl font-bold tracking-tight mb-6 bg-gradient-to-r from-cyan-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent"
           >
-            How EthEd Works
+            How EIPsInsight Academy Works
           </motion.h1>
           
           <motion.p
@@ -191,7 +191,7 @@ export default function HowItWorksPage() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-lg text-muted-foreground max-w-3xl mx-auto"
           >
-            Discover how EthEd revolutionizes Web3 education with permanent 
+            Discover how EIPsInsight Academy revolutionizes Web3 education with permanent 
             blockchain credentials and hands-on learning experiences.
           </motion.p>
         </div>

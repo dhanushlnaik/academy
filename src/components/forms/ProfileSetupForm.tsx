@@ -96,7 +96,7 @@ export default function ProfileSetupForm({
           Setup Your Profile
         </CardTitle>
         <CardDescription>
-          Personalize your eth.ed experience
+          Personalize your EIPsInsight Academy experience
         </CardDescription>
       </CardHeader>
       <CardContent>

@@ -14,7 +14,7 @@ export function ipfsToGatewayUrl(
 
     // Developer convenience: if the repo still contains the placeholder genesis CID,
     // show the bundled local preview in development so the UI works without IPFS.
-    if (process.env.NODE_ENV !== 'production' && cidAndPath.startsWith('QmEthEdPioneer1')) {
+    if (process.env.NODE_ENV !== 'production' && cidAndPath.startsWith('QmEIPsInsightPioneer1')) {
       // Use OG image fallback in dev instead of animated GIFs
       return '/og-image.png';
     }

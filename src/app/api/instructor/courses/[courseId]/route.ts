@@ -87,7 +87,6 @@ export async function PUT(
       ...parse.data,
       level: parse.data.level as any,
       status: "DRAFT", // Reset to draft if it was rejected
-      rejectionReason: null,
     },
   });
 

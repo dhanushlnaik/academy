@@ -178,7 +178,7 @@ export default function AdminNFTsPage() {
                         {nft.mintedAt ? new Date(nft.mintedAt).toLocaleDateString() : '—'}
                       </td>
                       <td className="px-4 py-3">
-                        {nft.transactionHash ? (
+                        {nft.transactionHash && nft.transactionHash.length > 2 && !/^0x0+$/.test(nft.transactionHash) ? (
                           <a
                             href={
                               nft.chainId === 137

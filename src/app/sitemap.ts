@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://ethed.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://academy.eipsinsight.com";
 
 const publicRoutes = [
   { path: "", priority: 1.0, changeFrequency: "weekly" as const },

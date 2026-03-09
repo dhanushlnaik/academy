@@ -1,4 +1,4 @@
-# EthEd Setup Guide
+# EIPsInsight Academy Setup Guide
 
 ## Environment Configuration
 
@@ -61,7 +61,7 @@
 ## Database Setup
 
 1. **Install PostgreSQL** (if not already installed)
-2. **Create a database** named `ethed`
+2. **Create a database** named `eipsinsight`
 3. **Update DATABASE_URL** in `.env.local`
 4. **Run migrations:**
    ```bash

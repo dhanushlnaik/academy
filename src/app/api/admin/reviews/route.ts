@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
   if (action === "approve") {
     await prisma.course.update({
       where: { id: courseId },
-      data: { status: "PUBLISHED", rejectionReason: null },
+      data: { status: "PUBLISHED" },
     });
 
     await createAuditLog({
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
 
     await prisma.course.update({
       where: { id: courseId },
-      data: { status: "REJECTED", rejectionReason: reason },
+      data: { status: "REJECTED" },
     });
 
     await createAuditLog({

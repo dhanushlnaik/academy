@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Home, ArrowLeft, Search } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Page Not Found | EthEd',
+  title: 'Page Not Found | EIPsInsight Academy',
 };
 
 export default function NotFound() {

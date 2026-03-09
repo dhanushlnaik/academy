@@ -281,7 +281,7 @@ function DonateContent() {
               </h1>
 
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-                Support EthEd with any cryptocurrency, on any chain. Every contribution helps us
+                Support EIPsInsight Academy with any cryptocurrency, on any chain. Every contribution helps us
                 build free, open-source blockchain education.
               </p>
 

@@ -12,10 +12,10 @@ interface OrganizationJsonLdProps {
  * Organization structured data for SEO
  */
 export function OrganizationJsonLd({
-  name = 'EthEd',
-  url = 'https://ethed.com',
-  logo = 'https://ethed.com/logo.png',
-  description = 'EthEd makes blockchain and Web3 education fun, verifiable, and rewarding.',
+  name = 'EIPsInsight Academy',
+  url = 'https://academy.eipsinsight.com',
+  logo = 'https://academy.eipsinsight.com/logo.png',
+  description = 'EIPsInsight Academy makes blockchain and Web3 education fun, verifiable, and rewarding.',
   sameAs = [],
 }: OrganizationJsonLdProps) {
   const jsonLd = {
@@ -54,7 +54,7 @@ interface CourseJsonLdProps {
 export function CourseJsonLd({
   name,
   description,
-  provider = 'EthEd',
+  provider = 'EIPsInsight Academy',
   url,
   image,
   courseMode = 'Online',
@@ -69,7 +69,7 @@ export function CourseJsonLd({
     provider: {
       '@type': 'Organization',
       name: provider,
-      url: 'https://ethed.com',
+      url: 'https://academy.eipsinsight.com',
     },
     url,
     ...(image && { image }),
@@ -99,9 +99,9 @@ interface WebsiteJsonLdProps {
  * Website structured data with search action
  */
 export function WebsiteJsonLd({
-  name = 'EthEd',
-  url = 'https://ethed.com',
-  description = 'Master blockchain and Web3 with EthEd',
+  name = 'EIPsInsight Academy',
+  url = 'https://academy.eipsinsight.com',
+  description = 'Master blockchain and Web3 with EIPsInsight Academy',
 }: WebsiteJsonLdProps) {
   const jsonLd = {
     '@context': 'https://schema.org',

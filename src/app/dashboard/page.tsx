@@ -117,7 +117,7 @@ export default function DashboardPage() {
     fetchProfile();
 
     // Auto-sync NFTs once per browser session (silently, no toast on 0 results)
-    const SYNC_KEY = 'ethed_nft_synced';
+    const SYNC_KEY = 'eipsinsight_nft_synced';
     if (!sessionStorage.getItem(SYNC_KEY)) {
       sessionStorage.setItem(SYNC_KEY, '1');
       fetch('/api/user/nft-sync', { method: 'POST' })
@@ -350,7 +350,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" className="flex-1" onClick={() => setShareNft(n)}><Share2 className="h-3 w-3 mr-1" />Share</Button>
-                        {n.transactionHash && <Button variant="outline" size="sm" asChild><a href={`https://amoy.polygonscan.com/tx/${n.transactionHash}`} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-3 w-3" /></a></Button>}
+                        {n.transactionHash && n.transactionHash.length > 2 && !/^0x0+$/.test(n.transactionHash) && <Button variant="outline" size="sm" asChild><a href={`https://amoy.polygonscan.com/tx/${n.transactionHash}`} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-3 w-3" /></a></Button>}
                       </div>
                     </CardContent>
                   </Card>

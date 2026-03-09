@@ -332,7 +332,7 @@ EIPs can be dense and technical. Here's how to read them efficiently and extract
   8: `
 # Draft Your First EIP: Hands-On Workshop
 
-Now it's time to put everything together and draft your first EIP using EthEd's Proposal Builder.
+Now it's time to put everything together and draft your first EIP using EIPsInsight Academy's Proposal Builder.
 
 ## Step 1: Problem Identification (10 minutes)
 

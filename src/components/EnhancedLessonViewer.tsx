@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useSession } from "next-auth/react";
 import { ArrowLeft, ArrowRight, CheckCircle, Clock, Zap, BookOpen, BarChart3, Trophy, Award } from 'lucide-react';
+import { isOnChainEnabled } from '@/lib/viem-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -197,6 +199,8 @@ export default function EnhancedLessonViewer({
   const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
   const [showQuiz, setShowQuiz] = useState(false);
   const [quizScore, setQuizScore] = useState<number | null>(null);
+  const { data: session } = useSession();
+
   const [showCelebration, setShowCelebration] = useState(false);
   const [noteContent, setNoteContent] = useState('');
   const [showNotes, setShowNotes] = useState(false);
@@ -209,6 +213,8 @@ export default function EnhancedLessonViewer({
     setShowQuiz(false);
     setQuizScore(null);
     setNoteContent('');
+    // Scroll to top when navigating to a new lesson
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [lesson.id, courseContext.completedLessons]);
 
   const lessonProgress = ((courseContext.completedLessons.length + (isCompleted ? 0 : 1)) / courseContext.totalLessons) * 100;
@@ -230,38 +236,80 @@ export default function EnhancedLessonViewer({
         handleMarkComplete();
     }
 
-    // Wait a moment for progress sync to DB
-    await new Promise(r => setTimeout(r, 1000));
+    // require wallet for on-chain minting if the feature flag is enabled
+    if (isOnChainEnabled() && !session?.address) {
+      toast.error(
+        "Please connect a wallet before finishing the course.",
+        { description: "A wallet is required to mint the NFT on-chain." }
+      );
+      setIsFinishing(false);
+      return;
+    }
+    // Sync final progress to the backend before minting
+    if (!session?.address) {
+      // let user know that without a connected wallet the NFT will be off-chain
+      toast.warning(
+        "No wallet connected — NFT will be recorded off-chain.",
+        { description: "Connect a wallet if you want the certificate minted on Polygon." }
+      );
+    }
+    try {
+      await fetch('/api/user/course/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          courseSlug: courseContext.courseId,
+          completedCount: courseContext.totalLessons,
+          totalModules: courseContext.totalLessons,
+          completedModules: [
+            ...courseContext.completedLessons.map(String),
+            String(lesson.id)
+          ].filter((v, i, a) => a.indexOf(v) === i)
+        })
+      });
+    } catch (err) {
+      logger.error('Failed to sync final progress', 'EnhancedLessonViewer', undefined, err);
+    }
 
     try {
         toast.promise(
             fetch('/api/user/nft/mint', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({
                     courseSlug: courseContext.courseId,
                     courseName: courseContext.courseName,
-                    // If you have a wallet address available in context, pass it
-                    // userAddress: userWalletAddress 
+                    // include a connected wallet address if session has one
+                    userAddress: session?.address || undefined,
                 })
             }).then(async res => {
-                if (!res.ok) throw new Error('Minting failed');
                 const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Minting failed');
                 return data;
             }),
             {
                 loading: 'Finalizing course & minting your NFT...',
                 success: (data) => {
-                    setTimeout(() => router.push('/profile'), 2000);
-                    return data.alreadyMinted 
-                        ? 'Achievement updated! Redirecting...' 
-                        : 'Course Complete! Your NFT is being minted! 🎓';
+                    setTimeout(() => router.push('/dashboard'), 2000);
+                    if (data.alreadyMinted) {
+                      return 'Achievement updated! Redirecting...';
+                    }
+                    if (!data.transaction || !data.transaction.txHash) {
+                      return 'Course Complete! Certificate recorded (off-chain).';
+                    }
+                    return 'Course Complete! Your NFT is being minted! 🎓';
                 },
-                error: 'Course completed, but NFT minting encountered an issue.'
+                error: (err) => {
+                    setIsFinishing(false);
+                    return `Course completed, but NFT minting encountered an issue: ${err instanceof Error ? err.message : 'Unknown error'}`;
+                }
             }
         );
     } catch (error) {
         logger.error('Finalization error', 'EnhancedLessonViewer', undefined, error);
+        setIsFinishing(false);
         router.push('/dashboard');
     }
   };

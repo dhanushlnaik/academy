@@ -65,7 +65,7 @@ export default function NFTShareModal({ nft, open, onClose }: NFTShareModalProps
   };
 
   const handleTwitterShare = () => {
-    const text = encodeURIComponent(`I just earned the "${courseName}" NFT on @ethed_app! 🎉🏆\n\nLearn blockchain & earn verifiable NFT credentials:\n${shareUrl}`);
+    const text = encodeURIComponent(`I just earned the "${courseName}" NFT from EIPsInsight Academy! 🎉🏆\n\nLearn blockchain & earn verifiable NFT credentials:\n${shareUrl}`);
     window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
   };
 
@@ -153,13 +153,21 @@ export default function NFTShareModal({ nft, open, onClose }: NFTShareModalProps
               {isPinning ? 'Pinning to IPFS...' : 'Pin Metadata to IPFS'}
             </Button>
 
-            {explorerUrl && (
+            {explorerUrl ? (
               <Button variant="outline" className="w-full justify-start" asChild>
                 <a href={explorerUrl} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="h-4 w-4 mr-2" />
                   View on Explorer
                 </a>
               </Button>
+            ) : (
+              // if there's no valid tx hash or chain info, show a hint so users
+              // aren’t left wondering where the verify link went
+              <div className="text-xs text-center text-muted-foreground">
+                {isRealTx
+                  ? 'No chain info available yet.'
+                  : 'NFT has not been minted on-chain or transaction data is missing.'}
+              </div>
             )}
 
             {ipfsUrl && (

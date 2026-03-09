@@ -25,8 +25,8 @@ export async function generateMetadata({ params }: NFTPageProps): Promise<Metada
 
   if (!nft) return {};
 
-  const title = `${nft.name} | EthEd NFT`;
-  const description = `${nft.user?.name || 'A learner'} earned "${nft.name}" on EthEd — verifiable blockchain education credentials.`;
+  const title = `${nft.name} | EIPsInsight Academy NFT`;
+  const description = `${nft.user?.name || 'A learner'} earned "${nft.name}" at EIPsInsight Academy — verifiable blockchain education credentials.`;
 
   return {
     title,
@@ -51,10 +51,10 @@ export default async function NFTPublicPage({ params }: NFTPageProps) {
   }
 
   const metadata = nft.metadata && typeof nft.metadata === 'object' ? nft.metadata as Record<string, unknown> : {};
-  const description = (metadata.description as string) || `${nft.name} — earned on EthEd`;
+  const description = (metadata.description as string) || `${nft.name} — earned at EIPsInsight Academy`;
   const txHash = (nft as unknown as { transactionHash?: string | null }).transactionHash ?? null;
   const chainId = (nft as unknown as { chainId?: number | null }).chainId ?? null;
-  const explorerUrl = txHash && chainId && !txHash.startsWith('0x' + '0'.repeat(64))
+  const explorerUrl = txHash && txHash.length > 2 && chainId && !/^0x0+$/.test(txHash)
     ? getExplorerTxUrl(chainId, txHash)
     : null;
 
@@ -64,7 +64,7 @@ export default async function NFTPublicPage({ params }: NFTPageProps) {
         <div className="max-w-2xl mx-auto space-y-8">
           {/* Back */}
           <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground">
-            <Link href="/"><ArrowLeft className="h-4 w-4 mr-2" /> Back to EthEd</Link>
+            <Link href="/"><ArrowLeft className="h-4 w-4 mr-2" /> Back to EIPsInsight Academy</Link>
           </Button>
 
           {/* NFT Card */}

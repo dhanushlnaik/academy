@@ -103,10 +103,22 @@ export default function Navbar() {
       
       <nav aria-label="Main navigation" className="w-full border-b border-border/50 bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-4">
-          <div className="relative flex h-16 items-center">
+          <div className="flex h-16 items-center justify-between gap-8">
             
-            {/* Left Section - Navigation Links */}
-            <div className="absolute left-0 flex items-center space-x-4 md:space-x-6">
+            {/* Left Section - Logo + Navigation Links */}
+            <div className="flex items-center gap-8">
+              {/* Logo */}
+              <div className="flex-shrink-0">
+                <Link href="/" className="group relative block">
+                  <Logo />
+                  
+                  {/* Optional: Floating particles effect */}
+                  <div className="absolute -top-2 -right-2 w-1 h-1 bg-emerald-400 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-all duration-300" />
+                  <div className="absolute -bottom-2 -left-2 w-1 h-1 bg-cyan-400 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-all duration-500" />
+                </Link>
+              </div>
+
+              {/* Navigation Links (hidden on mobile) */}
               <div className="hidden md:flex items-center space-x-6">
                 <Link
                   href="/learn"
@@ -141,19 +153,8 @@ export default function Navbar() {
               </div>
             </div>
 
-          {/* Center Logo - Absolutely positioned for perfect centering */}
-          <div className="absolute left-1/2 transform -translate-x-1/2">
-            <Link href="/" className="group relative block">
-              <Logo />
-              
-              {/* Optional: Floating particles effect */}
-              <div className="absolute -top-2 -right-2 w-1 h-1 bg-emerald-400 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-all duration-300" />
-              <div className="absolute -bottom-2 -left-2 w-1 h-1 bg-cyan-400 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-all duration-500" />
-            </Link>
-          </div>
-
-          {/* Right Section - Auth */}
-          <div className="absolute right-0 flex items-center space-x-4">
+            {/* Right Section - Auth & Theme */}
+            <div className="flex items-center space-x-4 flex-shrink-0">
             <ThemeToggle />
             {status === "loading" ? (
               <div className="h-8 w-20 bg-slate-300 rounded animate-pulse" />
@@ -292,11 +293,10 @@ export default function Navbar() {
                 </Button>
               </div>
             )}
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Mobile Menu with animations */}
+      </nav>
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-slate-200/20 bg-background/95 backdrop-blur animate-in slide-in-from-top-2 duration-200">
           <div className="container py-4 space-y-4">
@@ -429,7 +429,6 @@ export default function Navbar() {
           </div>
         </div>
       )}
-    </nav>
     </div>
   );
 }

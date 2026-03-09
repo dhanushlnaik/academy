@@ -70,7 +70,7 @@ export default function LeaderboardPage() {
             Global Explorer Rankings
           </h1>
           <p className="text-slate-400 text-lg">
-            Celebrating the top contributors and lifelong learners in the EthEd ecosystem.
+            Celebrating the top contributors and lifelong learners in the EIPsInsight Academy ecosystem.
           </p>
         </div>
 

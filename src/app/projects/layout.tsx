@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Projects | EthEd",
+  title: "Projects | EIPsInsight Academy",
   description:
-    "Browse and contribute to open-source Web3 projects built by the EthEd community.",
+    "Browse and contribute to open-source Web3 projects built by the EIPsInsight Academy community.",
   openGraph: {
-    title: "Projects | EthEd",
+    title: "Projects | EIPsInsight Academy",
     description:
-      "Browse and contribute to open-source Web3 projects built by the EthEd community.",
+      "Browse and contribute to open-source Web3 projects built by the EIPsInsight Academy community.",
   },
 };
 

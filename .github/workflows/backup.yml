@@ -20,7 +20,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-          FILENAME="ethed_backup_${TIMESTAMP}.sql.gz"
+          FILENAME="eipsinsight_backup_${TIMESTAMP}.sql.gz"
           pg_dump "$DATABASE_URL" | gzip > "$FILENAME"
           echo "BACKUP_FILE=$FILENAME" >> $GITHUB_ENV
 

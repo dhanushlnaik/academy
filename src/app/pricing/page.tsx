@@ -53,7 +53,7 @@ export default function PricingPage() {
             Invest in Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Decentralized Future</span>
           </h1>
           <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-            EthEd is currently in Early Access. All existing courses are free to celebrate our launch.
+            EIPsInsight Academy is currently in Early Access. All existing courses are free to celebrate our launch.
           </p>
         </div>
 

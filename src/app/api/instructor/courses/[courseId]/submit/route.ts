@@ -40,7 +40,7 @@ export async function POST(
 
   const updated = await prisma.course.update({
     where: { id: courseId },
-    data: { status: "AWAITING_APPROVAL", rejectionReason: null },
+    data: { status: "AWAITING_APPROVAL" },
   });
 
   await createAuditLog({

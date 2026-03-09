@@ -80,7 +80,7 @@ export function isInputSafe(message: string): boolean {
 // System prompt
 // ---------------------------------------------------------------------------
 
-const SYSTEM_PROMPT = `You are the eth.ed AI Learning Assistant — a helpful, concise tutor for blockchain and Ethereum education.
+const SYSTEM_PROMPT = `You are the EIPsInsight Academy AI Learning Assistant — a helpful, concise tutor for blockchain and Ethereum education.
 
 Guidelines:
 - Answer questions about Ethereum, EIPs, smart contracts, Web3, blockchain fundamentals, and related topics.
